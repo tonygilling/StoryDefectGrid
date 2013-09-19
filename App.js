@@ -9,10 +9,46 @@ Ext.define('CustomApp', {
         if (records.defects === null) {
             return  ;
         }
-        console.log(records)  
+        //console.log(records) ;
+        var artefacts = records.stories.concat(records.defects); 
+        //console.log(artefacts);
+        this.add({
+            xtype: 'rallygrid',
+            store: Ext.create('Rally.data.custom.Store', {
+                data: artefacts,
+                pageSize: 99
+            }),
+            columnCfgs: [
+                {
+                    text: 'FormattedID', dataIndex: 'FormattedID'
+                },
+                {
+                    text: 'Name', dataIndex: 'Name'
+                },
+                {
+                    text: 'Release', dataIndex: 'Release'
+                },
+                {
+                    text: 'Schedule State', dataIndex: 'ScheduleState'
+                }
+            ]
+        });
+        
+  
     },
 
     launch: function() {
+        var filter = Ext.create('Rally.data.QueryFilter', {
+            property: 'ScheduleState',
+            operator: '=',
+            value: 'Defined'
+        //})
+        //.and(
+        //{
+        //   property: 'Release',
+        //    operator: '=',
+        //    value: 'Release1'
+        });
         var records = {
             stories:null,
             defects:null
@@ -28,19 +64,16 @@ Ext.define('CustomApp', {
                 scope:this
             },
             filters: [
-                {
-                    property: 'ScheduleState',
-                    operator: '=',
-                    value: 'Defined'
-                }
+                filter
             ],
             fetch: [
                 'FormattedID',
                 'Name',
+                'Release',
                 'ScheduleState'
             ]
         });
-      //   console.log(storyStore);
+         console.log(storyStore);
         
         var defectStore = Ext.create('Rally.data.WsapiDataStore', {
             model: 'Defect',
@@ -66,18 +99,5 @@ Ext.define('CustomApp', {
             ]
         });
         // console.log(defectStore);
-        
-    
-        
-        var myGrid = Ext.create('Ext.grid.Panel', {
-            title: 'Stuff',
-            store: null,
-            columns: [
-                { text: 'FormattedID',  dataIndex: 'FormattedID' },
-                { text: 'Name', dataIndex: 'Name', },
-                { text: 'ScheduleState', dataIndex: 'ScheduleState' }
-            ]
-        });
-        this.add(myGrid);
     }
 });
